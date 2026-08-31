@@ -1,0 +1,4 @@
+# Cloudflare Pages — deploy the size-of-space directory as the site root.
+name = "size-of-space"
+compatibility_date = "2024-08-31"
+pages_build_output_dir = "size-of-space"
