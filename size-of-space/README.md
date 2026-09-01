@@ -24,18 +24,17 @@ cd size-of-space
 node --test format-size.test.js
 ```
 
-## Deploy to Cloudflare Pages
-
-1. Create a Cloudflare Pages project connected to this repo.
-2. Set **Build output directory** to `size-of-space`.
-3. No build command required (static site).
-4. Update `SITE_URL` in `config.js` to your Pages domain.
-
-Or with Wrangler:
+## Deploy to Cloudflare Workers
 
 ```bash
-npx wrangler pages deploy size-of-space --project-name=size-of-space
+npx wrangler deploy
 ```
+
+Live URL: **https://ccc1021-size-of-space.vast-baryonyx.workers.dev**
+
+> This deployment uses a Cloudflare Workers static assets bundle. All 56 textures and stickers are self-hosted in this repo (no external CDN).
+
+Update `SITE_URL` in `config.js` if your production domain changes.
 
 ## Configuration
 
@@ -47,4 +46,4 @@ Edit `size-of-space/config.js`:
 | `SITE_NAME` | Header brand text |
 | `CREDIT_LINE` | Title / end-screen credit |
 
-Textures are loaded from `neal.fun` CDN to preserve the original visuals.
+All textures and stickers are bundled locally under `textures-optimized/`, `textures-small/`, and `stickers/`.
