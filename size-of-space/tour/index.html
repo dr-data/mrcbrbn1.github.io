@@ -16,7 +16,8 @@
   {
     "imports": {
       "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
-      "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+      "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/",
+      "fuse.js": "https://cdn.jsdelivr.net/npm/fuse.js@7.1.0/dist/fuse.mjs"
     }
   }
   </script>
@@ -24,6 +25,8 @@
 <body>
   <div id="container">
     <a href="../" class="site-title" id="site-logo">CCC1021 SpaceTech</a>
+
+    <div id="search-host" class="search-host" style="display:none"></div>
 
     <div class="tour-toolbar" id="tour-toolbar" style="display:none">
       <button class="tour-btn" id="btn-learn" title="Learn more panel">Learn 學習</button>
@@ -68,8 +71,17 @@
     <div id="item-description" class="item-description" style="display: none">
       <div id="item-title" class="item-title"></div>
       <div id="item-type" class="item-type"></div>
-      <div id="item-size" class="item-size"></div>
+      <div class="size-row">
+        <div id="item-size" class="item-size"></div>
+        <div class="size-toggles" id="size-toggles" aria-label="Diameter display mode">
+          <button type="button" class="size-toggle active" data-mode="default" title="Absolute size">📏</button>
+          <button type="button" class="size-toggle" data-mode="human" title="Compared to human (1.7 m)">🧑</button>
+          <button type="button" class="size-toggle" data-mode="earth" title="Compared to Earth">🌍</button>
+        </div>
+      </div>
     </div>
+
+    <aside id="quiz-sidebar" class="quiz-sidebar" aria-label="Quiz panel"></aside>
 
     <div id="learn-panel" class="learn-panel" style="display:none"></div>
     <div id="minimap-host"></div>

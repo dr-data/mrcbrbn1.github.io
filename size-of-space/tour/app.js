@@ -6,7 +6,9 @@ import { ENRICHED_OBJECTS } from '../shared/objects-enriched.js';
 import { CHAPTERS } from '../shared/chapters.js';
 import { compareToText, volumeFitLabel } from '../shared/compare.js';
 import { markVisited, loadProgress, exportProgressForTeacher, downloadJson } from '../shared/progress.js';
-import { showQuizOverlay, createComparePanel, createMinimap } from '../shared/learning-ui.js';
+import { createComparePanel, createMinimap, createQuizSidebar } from '../shared/learning-ui.js';
+import { createObjectSearchBar } from '../shared/fuzzy-search.js';
+import { humanRatioLabel, earthRatioLabel } from '../shared/size-ratios.js';
 
 const SATURN_BODY_RADIUS = 60268;
 const SATURN_RING_INNER = 76268;
@@ -27,6 +29,7 @@ const state = {
   activeTween: null,
   tweenIndex: -1,
   learnPanelOpen: true,
+  sizeDisplayMode: 'default',
 };
 
 const els = {
@@ -43,6 +46,9 @@ const els = {
   tourToolbar: document.getElementById('tour-toolbar'),
   minimapHost: document.getElementById('minimap-host'),
   compareHost: document.getElementById('compare-host'),
+  searchHost: document.getElementById('search-host'),
+  quizSidebar: document.getElementById('quiz-sidebar'),
+  sizeToggles: document.getElementById('size-toggles'),
 };
 
 const scene = new THREE.Scene();
@@ -60,6 +66,8 @@ const objects = ENRICHED_OBJECTS.map((entry) => ({ ...entry }));
 const earthObj = objects.find((o) => o.name === 'Earth');
 const minimap = createMinimap(CHAPTERS, els.minimapHost);
 const comparePanel = createComparePanel(objects, els.compareHost);
+const quizSidebar = createQuizSidebar(els.quizSidebar);
+let objectSearch = null;
 
 function textureUrl(name) {
   return `${textureBase}/${name}.jpg`;
@@ -249,6 +257,30 @@ function tweenTo(target, duration = 600) {
     .start();
 }
 
+function formatSizeLine(obj) {
+  if (state.sizeDisplayMode === 'human') return humanRatioLabel(obj.rad, obj.name);
+  if (state.sizeDisplayMode === 'earth') return earthRatioLabel(obj.rad, obj.name);
+  return `${formatDiameter(obj.rad)} diameter`;
+}
+
+function navigateToIndex(index) {
+  if (index < 0 || index >= objects.length) return;
+  if (state.firstPage) {
+    state.firstPage = false;
+    state.pauseInput = true;
+    setTimeout(() => { state.pauseInput = false; }, 800);
+  }
+  if (state.lastPage) state.lastPage = false;
+  state.currentIndex = index;
+  tweenTo(objects[index], transitionTime(state.tweenIndex, index));
+  if (index > objects.length - 2) {
+    const last = objects[objects.length - 1];
+    if (last.mesh) last.mesh.visible = true;
+    if (last.shadow) last.shadow.visible = true;
+  }
+  updateUI();
+}
+
 function updateLearnPanel(obj) {
   if (!obj || !state.learnPanelOpen) {
     els.learnPanel.style.display = 'none';
@@ -279,12 +311,15 @@ function updateUI() {
   els.endPage.style.display = onEnd && !state.firstPage ? 'block' : 'none';
   els.itemDescription.style.display = inTour ? 'block' : 'none';
   els.tourToolbar.style.display = inTour ? 'flex' : 'none';
+  els.searchHost.style.display = inTour ? 'block' : 'none';
+  document.body.classList.toggle('quiz-open', quizSidebar.isOpen());
 
   if (inTour) {
     const obj = objects[state.currentIndex];
     els.itemTitle.innerHTML = `${obj.name}<div class="item-name-zh">${obj.nameZh}</div>`;
     els.itemType.textContent = obj.type;
-    els.itemSize.textContent = `${formatDiameter(obj.rad)} diameter`;
+    els.itemSize.textContent = formatSizeLine(obj);
+    objectSearch?.setValue(obj);
     markVisited(state.currentIndex);
     minimap.setActive(state.currentIndex);
     minimap.setVisited(loadProgress().visited);
@@ -515,12 +550,41 @@ function initLearningControls() {
   });
 
   document.getElementById('btn-quiz').addEventListener('click', () => {
-    showQuizOverlay({ graded: false });
+    const open = quizSidebar.toggle({
+      graded: false,
+      onClose: () => {
+        document.getElementById('btn-quiz').classList.remove('active');
+        document.body.classList.remove('quiz-open');
+        updateUI();
+      },
+    });
+    document.getElementById('btn-quiz').classList.toggle('active', open);
+    document.body.classList.toggle('quiz-open', open);
+    updateUI();
   });
 
   document.getElementById('btn-export').addEventListener('click', showExportDialog);
   document.getElementById('btn-end-quiz')?.addEventListener('click', () => {
-    showQuizOverlay({ graded: true });
+    quizSidebar.open({
+      graded: true,
+      onClose: () => {
+        document.getElementById('btn-quiz')?.classList.remove('active');
+        document.body.classList.remove('quiz-open');
+        updateUI();
+      },
+    });
+    document.getElementById('btn-quiz')?.classList.add('active');
+    document.body.classList.add('quiz-open');
+  });
+
+  els.sizeToggles?.querySelectorAll('.size-toggle').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      state.sizeDisplayMode = btn.dataset.mode;
+      els.sizeToggles.querySelectorAll('.size-toggle').forEach((b) => b.classList.toggle('active', b === btn));
+      if (objects[state.currentIndex]) {
+        els.itemSize.textContent = formatSizeLine(objects[state.currentIndex]);
+      }
+    });
   });
 
   document.getElementById('btn-learn').classList.add('active');
@@ -539,6 +603,9 @@ function init() {
   renderTitleCanvas(els.titleCanvas);
   renderTitleCanvas(els.endCanvas);
   initLearningControls();
+  objectSearch = createObjectSearchBar(objects, els.searchHost, {
+    onSelect: (obj) => navigateToIndex(obj.index),
+  });
   minimap.setVisited(loadProgress().visited);
   updateUI();
   animate();
