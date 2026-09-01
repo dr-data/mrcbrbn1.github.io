@@ -39,13 +39,25 @@ cd size-of-space
 node --test format-size.test.js
 ```
 
-## Deploy to Cloudflare Workers
+Live URL: **https://ccc1021-size-of-space.shorlol.workers.dev**
+
+## Deploy to Cloudflare (production)
+
+Requires repository secrets `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID` (same as other `dr-data` Workers projects).
 
 ```bash
-npx wrangler deploy
+npm ci
+npm test
+npm run deploy
 ```
 
-Live URL: **https://ccc1021-size-of-space.pentagonal-stick.workers.dev**
+GitHub Actions deploys automatically on push to `main` (`.github/workflows/deploy-cloudflare.yml`).
+
+Temporary preview (no login):
+
+```bash
+npm run deploy:preview
+```
 
 ## Project structure
 

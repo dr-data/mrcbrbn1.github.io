@@ -1,6 +1,7 @@
 name = "ccc1021-size-of-space"
-compatibility_date = "2024-08-31"
+compatibility_date = "2026-01-01"
 workers_dev = true
 
 [assets]
 directory = "./size-of-space"
+not_found_handling = "single-page-application"

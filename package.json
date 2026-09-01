@@ -1,0 +1,13 @@
+{
+  "name": "ccc1021-size-of-space",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node --test size-of-space/format-size.test.js size-of-space/size-ratios.test.js",
+    "deploy": "wrangler deploy",
+    "deploy:preview": "wrangler deploy --temporary"
+  },
+  "devDependencies": {
+    "wrangler": "^4.127.1"
+  }
+}
