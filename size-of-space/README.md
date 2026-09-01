@@ -1,12 +1,24 @@
-# The Size of Space — CCC1021 SpaceTech
+# CCC1021 SpaceTech — Size of Space & Learning Hub
 
-Standalone interactive visualization of cosmic scale, rebuilt from the [neal.fun Size of Space](https://neal.fun/size-of-space/) experience with CCC1021 branding and diameter labels.
+Interactive cosmic scale visualization and self-learning platform for **CCC1021** (non-science university students). English UI with Traditional Chinese object names.
+
+## Modes
+
+| Mode | Path | Description |
+|------|------|-------------|
+| **Home** | `/` | Portal to choose tour or hub |
+| **Enhanced Tour** | `/tour/` | 3D swipe tour with learn panel, compare, quiz, export |
+| **Learning Hub** | `/hub/` | Six chapters with missions, reflections, chapter quizzes |
+| **Instructor Dashboard** | `/teacher/` | Import student JSON exports (local, no backend) |
 
 ## Features
 
-- Same 3D object sequence, textures, and rendering (spheres, Saturn rings, black holes, galaxy planes)
-- Diameter shown in auto-selected units (m → km → million km → light-years → billion light-years)
-- Credit: **Made for the CCC1021 SpaceTech: Moon to Infinite and Beyond**
+- 60 cosmic objects with 3D textures (self-hosted, no neal.fun CDN)
+- Diameter labels with auto unit scaling
+- Traditional Chinese names (繁體中文) for every object
+- Chapter minimap, fun facts, misconceptions, volume comparisons
+- Informal self-quizzes + optional graded export (JSON)
+- Instructor dashboard with CSV export
 
 ## Local development
 
@@ -15,9 +27,12 @@ cd size-of-space
 python3 -m http.server 8080
 ```
 
-Open http://localhost:8080
+- Home: http://localhost:8080/
+- Tour: http://localhost:8080/tour/
+- Hub: http://localhost:8080/hub/
+- Teacher: http://localhost:8080/teacher/
 
-## Run size verification tests
+## Tests
 
 ```bash
 cd size-of-space
@@ -30,20 +45,23 @@ node --test format-size.test.js
 npx wrangler deploy
 ```
 
-Live URL: **https://ccc1021-size-of-space.vast-baryonyx.workers.dev**
+Live URL: **https://ccc1021-size-of-space.pentagonal-stick.workers.dev**
 
-> This deployment uses a Cloudflare Workers static assets bundle. All 56 textures and stickers are self-hosted in this repo (no external CDN).
+## Project structure
 
-Update `SITE_URL` in `config.js` if your production domain changes.
+```
+size-of-space/
+  index.html          # Student portal (mode selector)
+  tour/               # Mode 1 — enhanced 3D tour
+  hub/                # Mode 2 — modular learning hub
+  teacher/            # Instructor dashboard (separate site)
+  shared/             # Chapters, quiz, progress, metadata, UI
+  objects.js          # 60 object definitions
+  textures-optimized/
+  textures-small/
+  stickers/
+```
 
-## Configuration
+## Credit
 
-Edit `size-of-space/config.js`:
-
-| Variable | Purpose |
-|----------|---------|
-| `SITE_URL` | Canonical URL for meta tags |
-| `SITE_NAME` | Header brand text |
-| `CREDIT_LINE` | Title / end-screen credit |
-
-All textures and stickers are bundled locally under `textures-optimized/`, `textures-small/`, and `stickers/`.
+Made for the **CCC1021 SpaceTech: Moon to Infinite and Beyond**

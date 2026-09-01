@@ -1,0 +1,15 @@
+/* Tour-specific overrides */
+.item-name-zh {
+  font-size: 28px;
+  color: #74b9ff;
+  margin-top: 4px;
+  font-weight: 400;
+}
+
+#btn-end-quiz {
+  pointer-events: auto;
+}
+
+.title-footer .tour-btn {
+  margin-top: 8px;
+}

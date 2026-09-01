@@ -3,63 +3,41 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>The Size of Space — CCC1021 SpaceTech</title>
-  <meta name="description" content="Explore the scale of the universe — CCC1021 SpaceTech: Moon to Infinite and Beyond">
-  <meta property="og:url" content="https://ccc1021-size-of-space.vast-baryonyx.workers.dev/">
-  <meta property="og:type" content="website">
-  <meta property="og:title" content="The Size of Space — CCC1021 SpaceTech">
-  <meta property="og:description" content="Explore the scale of the universe">
-  <link rel="stylesheet" href="./styles.css">
-  <script type="importmap">
-  {
-    "imports": {
-      "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
-      "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
-    }
-  }
-  </script>
+  <title>CCC1021 SpaceTech — Learning Portal</title>
+  <meta name="description" content="CCC1021 SpaceTech: Moon to Infinite and Beyond — interactive size tour and learning hub">
+  <link rel="stylesheet" href="./home.css">
 </head>
 <body>
-  <div id="container">
-    <a href="/" class="site-title" id="site-logo">CCC1021 SpaceTech</a>
+  <div class="home-page">
+    <header class="home-header">
+      <h1>CCC1021 SpaceTech</h1>
+      <p class="subtitle">Moon to Infinite and Beyond<br>太空科技：從月球到無限宇宙</p>
+      <p class="credit">Made for CCC1021 — designed for non-science university students</p>
+    </header>
 
-    <div id="title-page" class="title-page" style="left: 0">
-      <div class="title-inner">
-        <div class="title-text">The Size of Space</div>
-        <div class="title-credit">Made for the CCC1021 SpaceTech: Moon to Infinite and Beyond</div>
-      </div>
-      <div class="title-instructions">
-        <span class="mobile-only">Swipe left to start</span>
-        <span class="desktop-only">Use the Right Arrow Key or Swipe Left to Start</span>
-        <img src="./stickers/arrow.png" alt="" class="heart desktop-only">
-      </div>
-      <canvas id="title-canvas" class="title-canvas"></canvas>
+    <div class="mode-grid">
+      <a href="./tour/" class="mode-card">
+        <h2>Size of Space Tour</h2>
+        <div class="mode-zh">宇宙尺度之旅</div>
+        <p>Swipe through 60 cosmic objects from an astronaut to the observable universe. See size labels, Chinese names, fun facts, and chapter progress as you explore.</p>
+        <span class="mode-tag">Mode 1 — Enhanced Tour</span>
+      </a>
+
+      <a href="./hub/" class="mode-card">
+        <h2>SpaceTech Learning Hub</h2>
+        <div class="mode-zh">太空科技學習中心</div>
+        <p>Six guided chapters with learning objectives, missions, self-quizzes, reflection prompts, and recap cards. Study at your own pace.</p>
+        <span class="mode-tag">Mode 2 — Modular Hub</span>
+      </a>
     </div>
 
-    <div id="end-page" class="title-page" style="left: 100%; display: none">
-      <div class="end-title-inner">
-        <div class="end-title">The Size Of Space</div>
-        <div class="quote-text">
-          <div>
-            Somewhere, something incredible is waiting to be known.
-            <span class="quote-credit">- Carl Sagan</span>
-          </div>
-        </div>
-        <div class="title-footer">
-          <div>Made for the CCC1021 SpaceTech: Moon to Infinite and Beyond</div>
-        </div>
-      </div>
-      <canvas id="end-canvas" class="title-canvas"></canvas>
+    <div class="teacher-link">
+      <a href="./teacher/">Instructor Dashboard 教師後台 →</a>
     </div>
 
-    <div id="item-description" class="item-description" style="display: none">
-      <div id="item-title" class="item-title"></div>
-      <div id="item-type" class="item-type"></div>
-      <div id="item-size" class="item-size"></div>
-    </div>
+    <footer class="home-footer">
+      <p>Informal self-quizzes included · Optional graded export for assignments</p>
+    </footer>
   </div>
-
-  <script src="https://cdn.jsdelivr.net/npm/hammerjs@2.0.8/hammer.min.js"></script>
-  <script type="module" src="./app.js"></script>
 </body>
 </html>

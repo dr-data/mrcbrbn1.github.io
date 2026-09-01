@@ -1,0 +1,358 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap');
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+}
+
+html,
+body {
+  min-height: 100%;
+  font-family: Roboto, sans-serif;
+  color: #fff;
+  background: #000;
+}
+
+.home-page {
+  min-height: 100vh;
+  background: radial-gradient(ellipse at 30% 20%, #1a1a3e 0%, #000 60%);
+  padding: 40px 24px 60px;
+}
+
+.home-header {
+  max-width: 900px;
+  margin: 0 auto 48px;
+  text-align: center;
+}
+
+.home-header h1 {
+  font-size: clamp(28px, 5vw, 42px);
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+
+.home-header .subtitle {
+  font-size: clamp(16px, 2.5vw, 20px);
+  font-weight: 300;
+  opacity: 0.85;
+  line-height: 1.4;
+}
+
+.home-header .credit {
+  margin-top: 16px;
+  font-size: 14px;
+  opacity: 0.6;
+}
+
+.mode-grid {
+  max-width: 900px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 24px;
+}
+
+.mode-card {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(116, 185, 255, 0.25);
+  border-radius: 16px;
+  padding: 28px 24px;
+  text-decoration: none;
+  color: inherit;
+  transition: transform 0.2s, border-color 0.2s, background 0.2s;
+  display: flex;
+  flex-direction: column;
+}
+
+.mode-card:hover {
+  transform: translateY(-4px);
+  border-color: #74b9ff;
+  background: rgba(116, 185, 255, 0.08);
+}
+
+.mode-card h2 {
+  font-size: 22px;
+  margin-bottom: 6px;
+}
+
+.mode-card .mode-zh {
+  font-size: 16px;
+  color: #74b9ff;
+  margin-bottom: 12px;
+}
+
+.mode-card p {
+  font-size: 15px;
+  line-height: 1.5;
+  font-weight: 300;
+  flex: 1;
+}
+
+.mode-card .mode-tag {
+  display: inline-block;
+  margin-top: 16px;
+  font-size: 12px;
+  padding: 4px 10px;
+  border-radius: 20px;
+  background: rgba(116, 185, 255, 0.15);
+  color: #74b9ff;
+  align-self: flex-start;
+}
+
+.home-footer {
+  max-width: 900px;
+  margin: 48px auto 0;
+  text-align: center;
+  font-size: 13px;
+  opacity: 0.5;
+}
+
+.home-footer a {
+  color: #74b9ff;
+  text-decoration: none;
+}
+
+.home-footer a:hover {
+  text-decoration: underline;
+}
+
+.teacher-link {
+  margin-top: 32px;
+  text-align: center;
+}
+
+.teacher-link a {
+  color: rgba(255, 255, 255, 0.45);
+  font-size: 13px;
+  text-decoration: none;
+}
+
+.teacher-link a:hover {
+  color: #74b9ff;
+}
+
+/* Hub page */
+.hub-page {
+  min-height: 100vh;
+  background: #000;
+  padding: 32px 24px 60px;
+}
+
+.hub-nav {
+  max-width: 960px;
+  margin: 0 auto 32px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.hub-nav a {
+  color: #74b9ff;
+  text-decoration: none;
+  font-size: 14px;
+}
+
+.hub-title {
+  max-width: 960px;
+  margin: 0 auto 32px;
+}
+
+.hub-title h1 {
+  font-size: 32px;
+  margin-bottom: 8px;
+}
+
+.hub-title p {
+  font-size: 16px;
+  font-weight: 300;
+  opacity: 0.8;
+  line-height: 1.5;
+}
+
+.chapter-grid {
+  max-width: 960px;
+  margin: 0 auto;
+  display: grid;
+  gap: 20px;
+}
+
+.chapter-card {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 14px;
+  padding: 22px 24px;
+}
+
+.chapter-card h3 {
+  font-size: 20px;
+  margin-bottom: 4px;
+}
+
+.chapter-card .chapter-zh {
+  color: #74b9ff;
+  font-size: 15px;
+  margin-bottom: 10px;
+}
+
+.chapter-card .objective {
+  font-size: 14px;
+  line-height: 1.45;
+  opacity: 0.85;
+  margin-bottom: 12px;
+}
+
+.chapter-progress-bar {
+  height: 4px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 2px;
+  margin-bottom: 14px;
+  overflow: hidden;
+}
+
+.chapter-progress-fill {
+  height: 100%;
+  background: #74b9ff;
+  border-radius: 2px;
+  transition: width 0.3s;
+}
+
+.chapter-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.chapter-actions a,
+.chapter-actions button {
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-size: 13px;
+  text-decoration: none;
+  cursor: pointer;
+  font-family: inherit;
+  border: none;
+}
+
+.chapter-actions .btn-tour {
+  background: #74b9ff;
+  color: #000;
+  font-weight: 600;
+}
+
+.chapter-actions .btn-quiz {
+  background: transparent;
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.3) !important;
+}
+
+.recap-card {
+  margin-top: 12px;
+  padding: 12px 14px;
+  background: rgba(85, 239, 196, 0.08);
+  border-left: 3px solid #55efc4;
+  font-size: 14px;
+  line-height: 1.45;
+}
+
+.recap-card strong {
+  display: block;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #55efc4;
+  margin-bottom: 4px;
+}
+
+/* Teacher dashboard */
+.teacher-page {
+  min-height: 100vh;
+  background: #0d1117;
+  padding: 32px 24px 60px;
+  color: #e6edf3;
+}
+
+.teacher-container {
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+.teacher-page h1 {
+  font-size: 28px;
+  margin-bottom: 8px;
+}
+
+.teacher-page .teacher-desc {
+  font-size: 15px;
+  opacity: 0.75;
+  margin-bottom: 28px;
+  line-height: 1.5;
+}
+
+.upload-zone {
+  border: 2px dashed rgba(116, 185, 255, 0.4);
+  border-radius: 12px;
+  padding: 32px;
+  text-align: center;
+  margin-bottom: 28px;
+  cursor: pointer;
+  transition: border-color 0.2s, background 0.2s;
+}
+
+.upload-zone:hover,
+.upload-zone.dragover {
+  border-color: #74b9ff;
+  background: rgba(116, 185, 255, 0.05);
+}
+
+.upload-zone input {
+  display: none;
+}
+
+.submissions-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+.submissions-table th,
+.submissions-table td {
+  padding: 10px 12px;
+  text-align: left;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.submissions-table th {
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  opacity: 0.6;
+}
+
+.submissions-table tr:hover td {
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.score-badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.score-high {
+  background: rgba(85, 239, 196, 0.2);
+  color: #55efc4;
+}
+
+.score-mid {
+  background: rgba(255, 234, 167, 0.2);
+  color: #ffeaa7;
+}
+
+.score-low {
+  background: rgba(255, 107, 129, 0.2);
+  color: #ff6b81;
+}

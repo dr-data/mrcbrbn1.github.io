@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>SpaceTech Learning Hub — CCC1021</title>
+  <meta name="description" content="CCC1021 SpaceTech modular learning hub with chapters, quizzes, and reflections">
+  <link rel="stylesheet" href="../home.css">
+  <link rel="stylesheet" href="../learning.css">
+</head>
+<body>
+  <div class="hub-page">
+    <nav class="hub-nav">
+      <a href="../">← Home 首頁</a>
+      <a href="../tour/">Open Size Tour 開啟尺度之旅</a>
+    </nav>
+
+    <div class="hub-title">
+      <h1>SpaceTech Learning Hub</h1>
+      <p>太空科技學習中心 — Six chapters for self-paced study. Complete missions in the tour, take informal quizzes, write reflections, and optionally export graded work for your instructor.</p>
+    </div>
+
+    <div class="chapter-grid" id="chapter-grid"></div>
+
+    <div style="max-width:960px;margin:32px auto 0;text-align:center">
+      <button class="btn-primary tour-btn" id="btn-full-quiz" style="padding:12px 24px;border:none;border-radius:8px;cursor:pointer;font-size:15px">Full Self-Quiz 完整測驗</button>
+      <button class="btn-secondary tour-btn" id="btn-graded-export" style="padding:12px 24px;margin-left:10px;border-radius:8px;cursor:pointer;font-size:15px;background:transparent;color:#fff;border:1px solid rgba(255,255,255,0.3)">Graded Export 評分匯出</button>
+    </div>
+  </div>
+
+  <script type="module" src="./hub.js"></script>
+</body>
+</html>

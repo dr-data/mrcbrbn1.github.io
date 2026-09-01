@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Instructor Dashboard — CCC1021 SpaceTech</title>
+  <meta name="description" content="CCC1021 instructor dashboard for importing student assignment exports">
+  <link rel="stylesheet" href="../home.css">
+</head>
+<body>
+  <div class="teacher-page">
+    <div class="teacher-container">
+      <nav style="margin-bottom:24px">
+        <a href="../" style="color:#74b9ff;text-decoration:none;font-size:14px">← Student Portal 學生入口</a>
+      </nav>
+
+      <h1>Instructor Dashboard</h1>
+      <p class="teacher-desc">
+        教師後台 — Import student JSON exports from the tour or learning hub.
+        No server required: files are processed locally in your browser.
+        Students export from the <strong>Export 匯出</strong> button after completing quizzes.
+      </p>
+
+      <div class="upload-zone" id="upload-zone">
+        <input type="file" id="file-input" accept=".json,application/json" multiple>
+        <p style="font-size:16px;margin-bottom:8px">Drop student JSON files here or click to browse</p>
+        <p style="font-size:13px;opacity:0.6">Supports multiple files · Data stays on your device</p>
+      </div>
+
+      <div id="summary" style="margin-bottom:20px;font-size:14px;opacity:0.75"></div>
+
+      <div style="overflow-x:auto">
+        <table class="submissions-table" id="submissions-table">
+          <thead>
+            <tr>
+              <th>Student</th>
+              <th>ID</th>
+              <th>Assignment</th>
+              <th>Visited</th>
+              <th>Quiz Score</th>
+              <th>Exported</th>
+              <th>Reflections</th>
+            </tr>
+          </thead>
+          <tbody id="submissions-body">
+            <tr><td colspan="7" style="opacity:0.5;text-align:center;padding:24px">No submissions yet — import student exports above</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div style="margin-top:24px">
+        <button id="clear-all" style="padding:8px 16px;background:transparent;border:1px solid rgba(255,107,129,0.5);color:#ff6b81;border-radius:8px;cursor:pointer;font-family:inherit;font-size:13px">Clear All</button>
+        <button id="export-csv" style="padding:8px 16px;margin-left:10px;background:#74b9ff;border:none;color:#000;border-radius:8px;cursor:pointer;font-family:inherit;font-size:13px;font-weight:600">Export CSV</button>
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="./teacher.js"></script>
+</body>
+</html>

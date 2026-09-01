@@ -1,8 +1,12 @@
 import * as THREE from 'three';
 import TWEEN from 'three/addons/libs/tween.module.js';
-import { SPACE_OBJECTS } from './objects.js';
-import { formatDiameter, lyToKm } from './format-size.js';
-import { TEXTURE_BASE, TEXTURE_BASE_SMALL, STICKER_BASE } from './config.js';
+import { lyToKm, formatDiameter } from '../format-size.js';
+import { textureBasePath, stickerBasePath } from '../shared/paths.js';
+import { ENRICHED_OBJECTS } from '../shared/objects-enriched.js';
+import { CHAPTERS } from '../shared/chapters.js';
+import { compareToText, volumeFitLabel } from '../shared/compare.js';
+import { markVisited, loadProgress, exportProgressForTeacher, downloadJson } from '../shared/progress.js';
+import { showQuizOverlay, createComparePanel, createMinimap } from '../shared/learning-ui.js';
 
 const SATURN_BODY_RADIUS = 60268;
 const SATURN_RING_INNER = 76268;
@@ -12,7 +16,8 @@ const SATURN_CAMERA_RADIUS = 58232;
 const isMobile = window.innerWidth < 600;
 const isSmallScreen = window.innerWidth <= 380;
 const objectGap = isMobile ? 5 : 2;
-const textureBase = isSmallScreen ? TEXTURE_BASE_SMALL : TEXTURE_BASE;
+const textureBase = isSmallScreen ? textureBasePath(true) : textureBasePath(false);
+const stickerBase = stickerBasePath();
 
 const state = {
   firstPage: true,
@@ -21,6 +26,7 @@ const state = {
   pauseInput: false,
   activeTween: null,
   tweenIndex: -1,
+  learnPanelOpen: true,
 };
 
 const els = {
@@ -33,6 +39,10 @@ const els = {
   itemSize: document.getElementById('item-size'),
   titleCanvas: document.getElementById('title-canvas'),
   endCanvas: document.getElementById('end-canvas'),
+  learnPanel: document.getElementById('learn-panel'),
+  tourToolbar: document.getElementById('tour-toolbar'),
+  minimapHost: document.getElementById('minimap-host'),
+  compareHost: document.getElementById('compare-host'),
 };
 
 const scene = new THREE.Scene();
@@ -45,7 +55,11 @@ const renderer = new THREE.WebGLRenderer({
 });
 
 let polygonOffset = -0.1;
-const objects = SPACE_OBJECTS.map((entry) => ({ ...entry }));
+const objects = ENRICHED_OBJECTS.map((entry) => ({ ...entry }));
+
+const earthObj = objects.find((o) => o.name === 'Earth');
+const minimap = createMinimap(CHAPTERS, els.minimapHost);
+const comparePanel = createComparePanel(objects, els.compareHost);
 
 function textureUrl(name) {
   return `${textureBase}/${name}.jpg`;
@@ -130,7 +144,7 @@ function addSaturn(obj, x, parent) {
   body.position.set(x, SATURN_BODY_RADIUS, 0);
   body.frustumCulled = false;
 
-  const ringMap = loadTexture(`${TEXTURE_BASE}/saturn-ring2.jpg`);
+  const ringMap = loadTexture(`${textureBasePath()}/saturn-ring2.jpg`);
   ringMap.minFilter = THREE.LinearFilter;
   const ringGeo = new THREE.RingGeometry(SATURN_RING_INNER, SATURN_RING_OUTER, 50);
   const ringMat = new THREE.MeshBasicMaterial({ map: ringMap, side: THREE.DoubleSide, transparent: true, opacity: 0.8 });
@@ -235,6 +249,26 @@ function tweenTo(target, duration = 600) {
     .start();
 }
 
+function updateLearnPanel(obj) {
+  if (!obj || !state.learnPanelOpen) {
+    els.learnPanel.style.display = 'none';
+    return;
+  }
+
+  const compare = compareToText(obj, objects);
+  const volume = earthObj && obj.name !== 'Earth' ? volumeFitLabel(obj, earthObj) : null;
+
+  els.learnPanel.innerHTML = `
+    <h3>${obj.chapter?.title || 'Cosmos'} · ${obj.chapter?.titleZh || ''}</h3>
+    <div class="name-zh">${obj.nameZh}</div>
+    <div class="fact">${obj.fact}</div>
+    ${compare ? `<div class="compare-line">📏 ${compare}</div>` : ''}
+    ${volume ? `<div class="volume-line">🔵 ${volume}</div>` : ''}
+    ${obj.misconception ? `<div class="misconception"><strong>Common misconception</strong>${obj.misconception}</div>` : ''}
+  `;
+  els.learnPanel.style.display = 'block';
+}
+
 function updateUI() {
   const onTitle = state.firstPage && state.currentIndex === 0;
   const onEnd = state.lastPage || state.currentIndex >= objects.length - 1;
@@ -244,12 +278,19 @@ function updateUI() {
   els.endPage.style.left = state.lastPage ? '0' : '100%';
   els.endPage.style.display = onEnd && !state.firstPage ? 'block' : 'none';
   els.itemDescription.style.display = inTour ? 'block' : 'none';
+  els.tourToolbar.style.display = inTour ? 'flex' : 'none';
 
   if (inTour) {
     const obj = objects[state.currentIndex];
-    els.itemTitle.textContent = obj.name;
+    els.itemTitle.innerHTML = `${obj.name}<div class="item-name-zh">${obj.nameZh}</div>`;
     els.itemType.textContent = obj.type;
     els.itemSize.textContent = `${formatDiameter(obj.rad)} diameter`;
+    markVisited(state.currentIndex);
+    minimap.setActive(state.currentIndex);
+    minimap.setVisited(loadProgress().visited);
+    updateLearnPanel(obj);
+  } else {
+    els.learnPanel.style.display = 'none';
   }
 }
 
@@ -264,14 +305,14 @@ function goNext() {
 
   if (state.currentIndex === objects.length - 1 && !state.lastPage) {
     state.lastPage = true;
-  const universe = {
-    x: 10 * lyToKm(46508e6),
-    y: 0,
-    z: 0,
-    rad: lyToKm(46508e6),
-    index: objects.length - 1,
-    render: 'galaxy',
-  };
+    const universe = {
+      x: 10 * lyToKm(46508e6),
+      y: 0,
+      z: 0,
+      rad: lyToKm(46508e6),
+      index: objects.length - 1,
+      render: 'galaxy',
+    };
     tweenTo(universe, 1000);
     updateUI();
     return;
@@ -344,9 +385,9 @@ function renderTitleCanvas(canvas) {
   const h = (canvas.height = window.innerHeight);
 
   const stickers = [
-    { src: `${STICKER_BASE}/jupiter.png`, x: (3 * w) / 4, y: h / 7, size: 30 },
-    { src: `${STICKER_BASE}/earth.png`, x: w / 5, y: h / 5, size: 80 },
-    { src: `${STICKER_BASE}/saturn.png`, x: (3 * w) / 6, y: (4 * h) / 5, size: 100 },
+    { src: `${stickerBase}/jupiter.png`, x: (3 * w) / 4, y: h / 7, size: 30 },
+    { src: `${stickerBase}/earth.png`, x: w / 5, y: h / 5, size: 80 },
+    { src: `${stickerBase}/saturn.png`, x: (3 * w) / 6, y: (4 * h) / 5, size: 100 },
   ];
 
   stickers.forEach(({ src, x, y, size }) => {
@@ -384,6 +425,48 @@ function renderTitleCanvas(canvas) {
   }
 }
 
+function showExportDialog() {
+  const overlay = document.createElement('div');
+  overlay.className = 'quiz-overlay';
+  overlay.innerHTML = `
+    <div class="quiz-card">
+      <h2>Export Assignment 匯出作業</h2>
+      <p class="quiz-meta">Download your progress as JSON for your instructor</p>
+      <div class="export-form">
+        <label>Student Name 姓名</label>
+        <input type="text" id="export-name" placeholder="Your name">
+        <label>Student ID 學號</label>
+        <input type="text" id="export-id" placeholder="Student ID">
+        <label>Assignment Code 作業代碼</label>
+        <input type="text" id="export-code" value="CCC1021-SCALE-01">
+      </div>
+      <div class="quiz-actions">
+        <button class="btn-primary" id="do-export">Download JSON</button>
+        <button class="btn-secondary" id="close-export">Cancel</button>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(overlay);
+
+  overlay.querySelector('#do-export').addEventListener('click', () => {
+    const name = overlay.querySelector('#export-name').value.trim();
+    const id = overlay.querySelector('#export-id').value.trim();
+    if (!name || !id) {
+      alert('Please enter your name and student ID.');
+      return;
+    }
+    const data = exportProgressForTeacher({
+      studentName: name,
+      studentId: id,
+      assignmentCode: overlay.querySelector('#export-code').value.trim() || 'CCC1021-SCALE-01',
+    });
+    downloadJson(`CCC1021-${id}-progress.json`, data);
+    overlay.remove();
+  });
+  overlay.querySelector('#close-export').addEventListener('click', () => overlay.remove());
+  overlay.addEventListener('click', (e) => { if (e.target === overlay) overlay.remove(); });
+}
+
 function animate() {
   requestAnimationFrame(animate);
   TWEEN.update();
@@ -418,6 +501,31 @@ function onResize() {
   renderTitleCanvas(els.endCanvas);
 }
 
+function initLearningControls() {
+  document.getElementById('btn-learn').addEventListener('click', () => {
+    state.learnPanelOpen = !state.learnPanelOpen;
+    document.getElementById('btn-learn').classList.toggle('active', state.learnPanelOpen);
+    if (state.learnPanelOpen && objects[state.currentIndex]) updateLearnPanel(objects[state.currentIndex]);
+    else els.learnPanel.style.display = 'none';
+  });
+
+  document.getElementById('btn-compare').addEventListener('click', () => {
+    comparePanel.toggle();
+    document.getElementById('btn-compare').classList.toggle('active');
+  });
+
+  document.getElementById('btn-quiz').addEventListener('click', () => {
+    showQuizOverlay({ graded: false });
+  });
+
+  document.getElementById('btn-export').addEventListener('click', showExportDialog);
+  document.getElementById('btn-end-quiz')?.addEventListener('click', () => {
+    showQuizOverlay({ graded: true });
+  });
+
+  document.getElementById('btn-learn').classList.add('active');
+}
+
 function init() {
   renderer.setPixelRatio(window.devicePixelRatio);
   renderer.domElement.id = 'renderer';
@@ -430,6 +538,8 @@ function init() {
 
   renderTitleCanvas(els.titleCanvas);
   renderTitleCanvas(els.endCanvas);
+  initLearningControls();
+  minimap.setVisited(loadProgress().visited);
   updateUI();
   animate();
 
@@ -443,6 +553,17 @@ function init() {
   });
 
   window.addEventListener('resize', onResize);
+
+  const startChapter = new URLSearchParams(window.location.search).get('chapter');
+  if (startChapter) {
+    const ch = CHAPTERS.find((c) => c.id === startChapter);
+    if (ch) {
+      state.firstPage = false;
+      state.currentIndex = ch.startIndex;
+      tweenTo(objects[ch.startIndex], 800);
+      setTimeout(updateUI, 900);
+    }
+  }
 }
 
 init();
