@@ -48,6 +48,7 @@ const els = {
   compareHost: document.getElementById('compare-host'),
   searchHost: document.getElementById('search-host'),
   quizSidebar: document.getElementById('quiz-sidebar'),
+  quizTab: document.getElementById('quiz-tab'),
   sizeToggles: document.getElementById('size-toggles'),
 };
 
@@ -68,6 +69,58 @@ const minimap = createMinimap(CHAPTERS, els.minimapHost);
 const comparePanel = createComparePanel(objects, els.compareHost);
 const quizSidebar = createQuizSidebar(els.quizSidebar);
 let objectSearch = null;
+
+function syncQuizChrome(open) {
+  document.getElementById('btn-quiz')?.classList.toggle('active', open);
+  document.getElementById('btn-quiz')?.setAttribute('aria-expanded', String(open));
+  els.quizTab?.setAttribute('aria-expanded', String(open));
+  document.body.classList.toggle('quiz-open', open);
+}
+
+function setQuizPanelOpen(open, opts = {}) {
+  if (open && quizSidebar.isOpen()) return;
+  if (!open && !quizSidebar.isOpen()) {
+    syncQuizChrome(false);
+    updateQuizTabVisibility();
+    return;
+  }
+
+  if (open) {
+    quizSidebar.open({
+      graded: false,
+      ...opts,
+      onClose: () => {
+        syncQuizChrome(false);
+        updateQuizTabVisibility();
+        updateUI();
+        opts.onClose?.();
+      },
+    });
+    syncQuizChrome(true);
+  } else {
+    quizSidebar.close({
+      onClose: () => {
+        syncQuizChrome(false);
+        updateQuizTabVisibility();
+        updateUI();
+        opts.onClose?.();
+      },
+    });
+  }
+  updateQuizTabVisibility();
+}
+
+function updateQuizTabVisibility() {
+  const inTour = !state.firstPage && !state.lastPage && state.currentIndex > 0 && state.currentIndex < objects.length - 1;
+  const showTab = inTour && !quizSidebar.isOpen();
+  if (els.quizTab) {
+    els.quizTab.hidden = !showTab;
+  }
+}
+
+function toggleQuizPanel() {
+  setQuizPanelOpen(!quizSidebar.isOpen());
+}
 
 function textureUrl(name) {
   return `${textureBase}/${name}.jpg`;
@@ -312,7 +365,7 @@ function updateUI() {
   els.itemDescription.style.display = inTour ? 'block' : 'none';
   els.tourToolbar.style.display = inTour ? 'flex' : 'none';
   els.searchHost.style.display = inTour ? 'block' : 'none';
-  document.body.classList.toggle('quiz-open', quizSidebar.isOpen());
+  updateQuizTabVisibility();
 
   if (inTour) {
     const obj = objects[state.currentIndex];
@@ -549,32 +602,13 @@ function initLearningControls() {
     document.getElementById('btn-compare').classList.toggle('active');
   });
 
-  document.getElementById('btn-quiz').addEventListener('click', () => {
-    const open = quizSidebar.toggle({
-      graded: false,
-      onClose: () => {
-        document.getElementById('btn-quiz').classList.remove('active');
-        document.body.classList.remove('quiz-open');
-        updateUI();
-      },
-    });
-    document.getElementById('btn-quiz').classList.toggle('active', open);
-    document.body.classList.toggle('quiz-open', open);
-    updateUI();
-  });
+  document.getElementById('btn-quiz').addEventListener('click', toggleQuizPanel);
+
+  els.quizTab?.addEventListener('click', () => setQuizPanelOpen(true));
 
   document.getElementById('btn-export').addEventListener('click', showExportDialog);
   document.getElementById('btn-end-quiz')?.addEventListener('click', () => {
-    quizSidebar.open({
-      graded: true,
-      onClose: () => {
-        document.getElementById('btn-quiz')?.classList.remove('active');
-        document.body.classList.remove('quiz-open');
-        updateUI();
-      },
-    });
-    document.getElementById('btn-quiz')?.classList.add('active');
-    document.body.classList.add('quiz-open');
+    setQuizPanelOpen(true);
   });
 
   els.sizeToggles?.querySelectorAll('.size-toggle').forEach((btn) => {

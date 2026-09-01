@@ -54,7 +54,7 @@
   margin-top: 8px;
 }
 
-/* Shift layout when quiz sidebar is open */
+/* Shift layout when quiz sidebar is open — keep tour visible for cross-reference */
 body.quiz-open .learn-panel {
   display: none !important;
 }
