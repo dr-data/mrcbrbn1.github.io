@@ -2,7 +2,47 @@ import { QUIZ_BANK, gradeQuiz, quizForChapter } from './quiz-data.js';
 import { saveQuizAnswers, exportProgressForTeacher, downloadJson } from './progress.js';
 import { createFuzzySelect } from './fuzzy-search.js';
 
-function mountQuizUI({ container, chapterId, graded, onClose }) {
+const FULL_QUIZ_TITLE = 'Full Self-Quiz 完整測驗';
+
+function bindSwipeToClose(container, onClose) {
+  if (window.matchMedia('(min-width: 601px)').matches) return;
+
+  let startY = 0;
+  let dragging = false;
+
+  container.addEventListener('touchstart', (e) => {
+    if (!container.classList.contains('open')) return;
+    const handle = e.target.closest('.quiz-sidebar-handle, .quiz-sidebar-header');
+    if (!handle) return;
+    startY = e.touches[0].clientY;
+    dragging = true;
+  }, { passive: true });
+
+  container.addEventListener('touchmove', (e) => {
+    if (!dragging) return;
+    const dy = Math.max(0, e.touches[0].clientY - startY);
+    container.style.setProperty('--quiz-drag-offset', `${dy}px`);
+  }, { passive: true });
+
+  const endDrag = (clientY) => {
+    if (!dragging) return;
+    dragging = false;
+    const dy = Math.max(0, clientY - startY);
+    container.style.removeProperty('--quiz-drag-offset');
+    if (dy > 72) onClose();
+  };
+
+  container.addEventListener('touchend', (e) => {
+    endDrag(e.changedTouches[0].clientY);
+  }, { passive: true });
+
+  container.addEventListener('touchcancel', () => {
+    dragging = false;
+    container.style.removeProperty('--quiz-drag-offset');
+  }, { passive: true });
+}
+
+function mountQuizUI({ container, chapterId, graded, title, onClose }) {
   const questions = chapterId ? quizForChapter(chapterId) : QUIZ_BANK;
   const globalIndices = chapterId
     ? QUIZ_BANK.map((q, i) => (q.chapterId === chapterId ? i : -1)).filter((i) => i >= 0)
@@ -10,15 +50,18 @@ function mountQuizUI({ container, chapterId, graded, onClose }) {
 
   const answers = new Array(QUIZ_BANK.length).fill(-1);
   let current = 0;
+  const heading = title || (chapterId ? 'Chapter Quiz 章節測驗' : FULL_QUIZ_TITLE);
+  const isSidebar = container.classList.contains('quiz-sidebar');
 
   const root = document.createElement('div');
   root.className = 'quiz-sidebar-inner';
   root.innerHTML = `
+    ${isSidebar ? '<div class="quiz-sidebar-handle" aria-hidden="true"><span></span></div>' : ''}
     <div class="quiz-sidebar-header">
-      <h2>${chapterId ? 'Chapter Quiz' : 'Self-Quiz'}</h2>
-      <button type="button" class="quiz-sidebar-close" aria-label="Close quiz">×</button>
+      <h2>${heading}</h2>
+      <button type="button" class="quiz-sidebar-close" aria-label="Hide quiz panel">×</button>
     </div>
-    <p class="quiz-meta">${graded ? 'Graded — export when done' : 'Practice while viewing the tour'}</p>
+    <p class="quiz-meta">${graded ? 'Graded — export when done 完成後可匯出' : 'Practice while viewing the tour 邊看邊答，可隨時收起'}</p>
     <div id="quiz-body"></div>
     <div class="quiz-actions" id="quiz-actions"></div>
   `;
@@ -28,8 +71,6 @@ function mountQuizUI({ container, chapterId, graded, onClose }) {
   const actions = root.querySelector('#quiz-actions');
 
   function close() {
-    container.classList.remove('open');
-    container.innerHTML = '';
     onClose?.();
   }
 
@@ -133,29 +174,39 @@ function mountQuizUI({ container, chapterId, graded, onClose }) {
   return { close };
 }
 
-/** Quiz sidebar — keeps 3D tour visible */
+/** Quiz sidebar — keeps 3D tour visible for cross-reference */
 export function createQuizSidebar(container) {
+  let activeClose = null;
+
+  function closePanel(opts = {}) {
+    container.classList.remove('open');
+    container.style.removeProperty('--quiz-drag-offset');
+    container.innerHTML = '';
+    activeClose = null;
+    opts.onClose?.();
+  }
+
+  bindSwipeToClose(container, () => activeClose?.());
+
   return {
     open(opts = {}) {
       container.innerHTML = '';
       container.classList.add('open');
-      return mountQuizUI({
+      const ui = mountQuizUI({
         container,
+        title: opts.title ?? FULL_QUIZ_TITLE,
         ...opts,
-        onClose: () => {
-          container.classList.remove('open');
-          opts.onClose?.();
-        },
+        onClose: () => closePanel(opts),
       });
+      activeClose = ui.close;
+      return ui;
     },
-    close() {
-      container.classList.remove('open');
-      container.innerHTML = '';
+    close(opts = {}) {
+      closePanel(opts);
     },
     toggle(opts = {}) {
       if (container.classList.contains('open')) {
-        this.close();
-        opts.onClose?.();
+        this.close(opts);
         return false;
       }
       this.open(opts);
@@ -254,16 +305,22 @@ export function createComparePanel(objects, container) {
 }
 
 /** Chapter minimap */
-export function createMinimap(chapters, container) {
+export function createMinimap(chapters, container, { onJump } = {}) {
   const el = document.createElement('div');
   el.className = 'minimap';
   el.innerHTML = chapters.map((c) => `
-    <div class="minimap-chapter" data-id="${c.id}" data-start="${c.startIndex}" title="${c.title}">
+    <button type="button" class="minimap-chapter" data-id="${c.id}" data-start="${c.startIndex}" title="${c.title}">
       <span class="minimap-dot"></span>
       <span class="minimap-label">${c.title}</span>
-    </div>
+    </button>
   `).join('');
   container.appendChild(el);
+
+  if (onJump) {
+    el.querySelectorAll('.minimap-chapter').forEach((node) => {
+      node.addEventListener('click', () => onJump(Number(node.dataset.start)));
+    });
+  }
 
   return {
     setActive(index) {

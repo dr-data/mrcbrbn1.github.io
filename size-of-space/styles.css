@@ -116,6 +116,7 @@ body {
   font-weight: 100;
   line-height: 1.5em;
   animation: blinker 2s ease-in-out 3s infinite alternate;
+  cursor: pointer;
 }
 
 .title-canvas {

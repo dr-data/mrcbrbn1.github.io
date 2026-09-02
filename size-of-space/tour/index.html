@@ -31,7 +31,10 @@
     <div class="tour-toolbar" id="tour-toolbar" style="display:none">
       <button class="tour-btn" id="btn-learn" title="Learn more panel">Learn 學習</button>
       <button class="tour-btn" id="btn-compare" title="Compare two objects">Compare 比較</button>
-      <button class="tour-btn" id="btn-quiz" title="Self-quiz">Quiz 測驗</button>
+      <button class="tour-btn" id="btn-quiz" title="Full Self-Quiz — practice while viewing the tour" aria-controls="quiz-sidebar" aria-expanded="false">
+        <span class="quiz-btn-full">Full Self-Quiz 完整測驗</span>
+        <span class="quiz-btn-short">測驗 Quiz</span>
+      </button>
       <button class="tour-btn" id="btn-export" title="Export graded assignment">Export 匯出</button>
     </div>
 
@@ -40,7 +43,7 @@
         <div class="title-text">The Size of Space</div>
         <div class="title-credit">Made for the CCC1021 SpaceTech: Moon to Infinite and Beyond</div>
       </div>
-      <div class="title-instructions">
+      <div class="title-instructions" role="button" tabindex="0" aria-label="Start tour">
         <span class="mobile-only">Swipe left to start</span>
         <span class="desktop-only">Use the Right Arrow Key or Swipe Left to Start</span>
         <img src="../stickers/arrow.png" alt="" class="heart desktop-only">
@@ -60,7 +63,7 @@
         <div class="title-footer">
           <div>Made for the CCC1021 SpaceTech: Moon to Infinite and Beyond</div>
           <div style="margin-top:16px">
-            <button class="tour-btn" id="btn-end-quiz" style="pointer-events:auto">Take Self-Quiz 自我測驗</button>
+            <button class="tour-btn" id="btn-end-quiz" style="pointer-events:auto">Full Self-Quiz 完整測驗</button>
             <a href="../hub/" class="tour-btn" style="display:inline-block;margin-left:8px;text-decoration:none">Learning Hub 學習中心</a>
           </div>
         </div>
@@ -81,7 +84,11 @@
       </div>
     </div>
 
-    <aside id="quiz-sidebar" class="quiz-sidebar" aria-label="Quiz panel"></aside>
+    <button type="button" id="quiz-tab" class="quiz-tab" aria-label="Show Full Self-Quiz panel" aria-controls="quiz-sidebar" aria-expanded="false" hidden>
+      <span class="quiz-tab-icon" aria-hidden="true">📝</span>
+      <span class="quiz-tab-label">完整測驗</span>
+    </button>
+    <aside id="quiz-sidebar" class="quiz-sidebar" aria-label="Full Self-Quiz panel" role="dialog" aria-modal="false"></aside>
 
     <div id="learn-panel" class="learn-panel" style="display:none"></div>
     <div id="minimap-host"></div>
