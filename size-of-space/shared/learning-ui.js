@@ -305,16 +305,22 @@ export function createComparePanel(objects, container) {
 }
 
 /** Chapter minimap */
-export function createMinimap(chapters, container) {
+export function createMinimap(chapters, container, { onJump } = {}) {
   const el = document.createElement('div');
   el.className = 'minimap';
   el.innerHTML = chapters.map((c) => `
-    <div class="minimap-chapter" data-id="${c.id}" data-start="${c.startIndex}" title="${c.title}">
+    <button type="button" class="minimap-chapter" data-id="${c.id}" data-start="${c.startIndex}" title="${c.title}">
       <span class="minimap-dot"></span>
       <span class="minimap-label">${c.title}</span>
-    </div>
+    </button>
   `).join('');
   container.appendChild(el);
+
+  if (onJump) {
+    el.querySelectorAll('.minimap-chapter').forEach((node) => {
+      node.addEventListener('click', () => onJump(Number(node.dataset.start)));
+    });
+  }
 
   return {
     setActive(index) {

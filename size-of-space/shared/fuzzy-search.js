@@ -156,11 +156,11 @@ export function createFuzzySelect(objects, { label, defaultIndex = 0, onChange }
   const results = wrap.querySelector('.fuzzy-results');
   let selected = objects[defaultIndex] ?? objects[0];
 
-  function setSelected(obj) {
+  function setSelected(obj, { notify = true } = {}) {
     selected = obj;
     input.value = resultLabel(obj);
     results.hidden = true;
-    onChange?.(obj);
+    if (notify) onChange?.(obj);
   }
 
   function showResults(items) {
@@ -209,7 +209,7 @@ export function createFuzzySelect(objects, { label, defaultIndex = 0, onChange }
     if (!wrap.contains(e.target)) results.hidden = true;
   });
 
-  setSelected(selected);
+  setSelected(selected, { notify: false });
 
   return {
     getValue: () => selected,

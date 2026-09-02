@@ -65,7 +65,9 @@ let polygonOffset = -0.1;
 const objects = ENRICHED_OBJECTS.map((entry) => ({ ...entry }));
 
 const earthObj = objects.find((o) => o.name === 'Earth');
-const minimap = createMinimap(CHAPTERS, els.minimapHost);
+const minimap = createMinimap(CHAPTERS, els.minimapHost, {
+  onJump: (index) => navigateToIndex(index),
+});
 const comparePanel = createComparePanel(objects, els.compareHost);
 const quizSidebar = createQuizSidebar(els.quizSidebar);
 let objectSearch = null;
@@ -648,9 +650,36 @@ function init() {
   hammer.on('swipeleft', goNext);
   hammer.on('swiperight', goPrev);
 
-  window.addEventListener('keyup', (e) => {
-    if (e.key === 'ArrowRight') goNext();
-    if (e.key === 'ArrowLeft') goPrev();
+  const handleNavKey = (e) => {
+    if (e.key === 'ArrowRight') {
+      e.preventDefault();
+      goNext();
+    }
+    if (e.key === 'ArrowLeft') {
+      e.preventDefault();
+      goPrev();
+    }
+  };
+
+  window.addEventListener('keydown', handleNavKey);
+
+  els.titlePage.addEventListener('click', (e) => {
+    if (!state.firstPage) return;
+    if (e.target.closest('a, button')) return;
+    goNext();
+  });
+
+  els.titlePage.querySelector('.title-instructions')?.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      goNext();
+    }
+  });
+
+  els.endPage.addEventListener('click', (e) => {
+    if (!state.lastPage) return;
+    if (e.target.closest('a, button')) return;
+    goPrev();
   });
 
   window.addEventListener('resize', onResize);
